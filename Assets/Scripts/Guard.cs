@@ -12,52 +12,56 @@ public class Guard : MonoBehaviour
     [SerializeField] private float rotateSpeed;
     [SerializeField] private float viewDistance;
     
-    private Vector3[] wayPoint;
-    private float viewAngle;
-    private Transform player;
-    private float timeToSpotPlayer = .2f;
-    private float playerVisibleTimer;
-    private Color originalSpotlightColor = Color.yellow;
-    private Color detectedSpotlightColor =  Color.red;
+    private Vector3[] _wayPoint;
+    private float _viewAngle;
+    private Transform _player;
+    private float _timeToSpotPlayer = .2f;
+    private float _playerVisibleTimer;
+    private Color _originalSpotlightColor = Color.yellow;
+    private Color _detectedSpotlightColor =  Color.red;
 
     private void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        _player = GameObject.FindGameObjectWithTag("Player").transform;
         transform.position = pathHolder.GetChild(0).position;
-        transform.forward = pathHolder.GetChild(1).forward;
-        viewAngle = spotlight.spotAngle;
-        spotlight.color = originalSpotlightColor;
-        wayPoint = new Vector3[pathHolder.childCount];
+      
         
-        for (int i = 0; i < wayPoint.Length; i++)
+        transform.forward = pathHolder.GetChild(1).forward;
+        _viewAngle = spotlight.spotAngle;
+        spotlight.color = _originalSpotlightColor;
+        
+        _wayPoint = new Vector3[pathHolder.childCount];
+        
+        for (int i = 0; i < _wayPoint.Length; i++)
         {
-            wayPoint[i] = pathHolder.GetChild(i).position;
+            _wayPoint[i] = pathHolder.GetChild(i).position;
+            _wayPoint[i].y = 0.5f;
         }
     
-        StartCoroutine(guardPath(wayPoint));
+        StartCoroutine(GuardPath(_wayPoint));
     }
 
     private void Update()
     {
-        if (canSeePlayer(player.position))
+        if (CanSeePlayer(_player.position))
         {
-            playerVisibleTimer += Time.deltaTime;
+            _playerVisibleTimer += Time.deltaTime;
         }
         else
         {
-            playerVisibleTimer -= Time.deltaTime;
+            _playerVisibleTimer -= Time.deltaTime;
         }
         
-        playerVisibleTimer = Mathf.Clamp(playerVisibleTimer, 0, timeToSpotPlayer);
-        spotlight.color = Color.Lerp(originalSpotlightColor, detectedSpotlightColor, playerVisibleTimer / timeToSpotPlayer);
+        _playerVisibleTimer = Mathf.Clamp(_playerVisibleTimer, 0, _timeToSpotPlayer);
+        spotlight.color = Color.Lerp(_originalSpotlightColor, _detectedSpotlightColor, _playerVisibleTimer / _timeToSpotPlayer);
 
-        if (playerVisibleTimer >= timeToSpotPlayer)
+        if (_playerVisibleTimer >= _timeToSpotPlayer)
         {
             OnGuardHasSpottedPlayer?.Invoke();
         }
     }
 
-    private bool canSeePlayer(Vector3 playerPos)
+    private bool CanSeePlayer(Vector3 playerPos)
     {
         Vector3 directionToTarget = (playerPos - spotlight.transform.position).normalized;
         float angle = Vector3.Angle(directionToTarget, spotlight.transform.forward);
@@ -65,9 +69,9 @@ public class Guard : MonoBehaviour
         bool notBlockedByObstacle =
             !Physics.Raycast(transform.position, directionToTarget, out RaycastHit hit,viewDistance, obstacleLayer);
         
-        if (Vector3.Distance(player.position, transform.position) < viewDistance)
+        if (Vector3.Distance(_player.position, transform.position) < viewDistance)
         {
-            if (angle <= viewAngle / 2 &&  notBlockedByObstacle)
+            if (angle <= _viewAngle / 2 &&  notBlockedByObstacle)
             {
                 return true;
             }
@@ -76,7 +80,7 @@ public class Guard : MonoBehaviour
         return false;
     }
     
-    private IEnumerator guardPath(Vector3[] wayPoints)
+    private IEnumerator GuardPath(Vector3[] wayPoints)
     {
         int currentWayPointIndex = 1;
         Vector3 targetPos = wayPoints[currentWayPointIndex];

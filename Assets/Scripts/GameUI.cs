@@ -6,17 +6,23 @@ public class GameUI : MonoBehaviour
    [SerializeField] private GameObject gameLoseUI;
    [SerializeField] private GameObject gameWinUI;
 
-   private bool gameIsOver;
+   private Player _player;
+   private bool _gameIsOver;
 
+   private void Awake()
+   {
+       _player = FindFirstObjectByType<Player>();
+   }
+   
    private void Start()
    {
        Guard.OnGuardHasSpottedPlayer += ShowGameLoseUI;
-       FindObjectOfType<Player>().OnReachFinish += ShowGameWinUI;
+       _player.OnReachFinish += ShowGameWinUI;
    }
 
    private void Update()
    {
-       if (gameIsOver)
+       if (_gameIsOver)
        {
            if (Input.GetKeyDown(KeyCode.Space))
            {
@@ -38,8 +44,8 @@ public class GameUI : MonoBehaviour
    private void OnGameOverUI(GameObject gameOverUI)
    {
        gameOverUI.SetActive(true);
-       gameIsOver = true;
+       _gameIsOver = true;
        Guard.OnGuardHasSpottedPlayer -= ShowGameLoseUI;
-       FindObjectOfType<Player>().OnReachFinish -= ShowGameWinUI;
+       _player.OnReachFinish -= ShowGameWinUI;
    }
 }

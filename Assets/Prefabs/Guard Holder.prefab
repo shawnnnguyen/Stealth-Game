@@ -272,9 +272,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Guard
   pathHolder: {fileID: 4288266398727551816}
   spotlight: {fileID: 6595876597380890040}
-  movingSpeed: 7
-  waitTime: 2
-  rotateSpeed: 50
+  movingSpeed: 10
+  waitTime: 1
+  rotateSpeed: 80
   viewDistance: 8
 --- !u!1 &6370724594209052420
 GameObject:
